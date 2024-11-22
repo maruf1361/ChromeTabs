@@ -1,71 +1,3 @@
-
-
-// // background.js
-// let tabsData = [];
-
-// async function updateTabsData() {
-//   try {
-//     const windows = await chrome.windows.getAll({ populate: true });
-//     tabsData = [];
-    
-//     for (const window of windows) {
-//       for (const tab of window.tabs) {
-//         tabsData.push({
-//           id: tab.id,
-//           windowId: tab.windowId,
-//           title: tab.title,
-//           url: tab.url,
-//           favicon: tab.favIconUrl,
-//           parentId: tab.openerTabId
-//         });
-//       }
-//     }
-    
-//     await chrome.storage.local.set({ tabsData: tabsData });
-//   } catch (error) {
-//     console.error('Error updating tabs:', error);
-//   }
-// }
-
-// // Listen for tab changes
-// chrome.tabs.onCreated.addListener(() => updateTabsData());
-// chrome.tabs.onRemoved.addListener(() => updateTabsData());
-// chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-//   if (changeInfo.status === 'complete') {
-//     updateTabsData();
-//   }
-// });
-
-// // Handle messages
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-//   console.log('Message received:', request);
-
-//   if (request.action === 'getTabs') {
-//     sendResponse({ type: 'tabsUpdate', data: tabsData });
-//   }
-//   else if (request.action === 'focusTab') {
-//     chrome.windows.update(request.windowId, { focused: true });
-//     chrome.tabs.update(request.tabId, { active: true });
-//     sendResponse({ success: true });
-//   }
-//   else if (request.action === 'closeTab') {
-//     try {
-//       chrome.tabs.remove(request.tabId);
-//       sendResponse({ success: true });
-//       updateTabsData(); // Update tab data after closing
-//     } catch (error) {
-//       console.error('Error closing tab:', error);
-//       sendResponse({ success: false, error: error.message });
-//     }
-//   }
-//   return true; // Keep the message channel open
-// });
-
-// // Initial data collection
-// updateTabsData();
-
-
-// background.js
 let tabsData = [];
 let screenshotQueue = [];
 let isProcessingQueue = false;
@@ -139,7 +71,6 @@ async function captureTabScreenshot(tabId) {
     }
   }
   
-  // Modify the processScreenshotQueue function to be more robust
   async function processScreenshotQueue() {
     if (isProcessingQueue || screenshotQueue.length === 0) return;
     

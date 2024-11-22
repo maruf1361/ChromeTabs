@@ -16,11 +16,11 @@
     },
     "content_scripts": [
       {
-        "matches": ["http://localhost:3000/*"],
+        "matches": ["https://tabmap.netlify.app/*"],
         "js": ["content-script.js"]
       }
     ],
     "host_permissions": [
-      "http://localhost:3000/*"
+      "https://tabmap.netlify.app/*"
     ]
   }

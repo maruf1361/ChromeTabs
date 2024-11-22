@@ -1,11 +1,14 @@
 
+
+
 // // components/canvas/TabCanvas.jsx
 // "use client";
 
 // import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 // import { PanZoom } from 'react-easy-panzoom';
-// import { Card } from "@/components/ui/card";
-// import { Globe } from "lucide-react";
+// import { Card } from '../ui/card';
+// import { Input } from '@/components/ui/input';
+// import { Globe, Search, X } from "lucide-react";
 // import { useTabData } from '@/hooks/useTabData';
 // import TabNode from './TabNode';
 
@@ -174,6 +177,9 @@
 //   const { tabs, loading, error, focusTab } = useTabData();
 //   const [positions, setPositions] = useState(() => loadPositionsFromStorage());
 //   const [isDragging, setIsDragging] = useState(false);
+//   const [searchQuery, setSearchQuery] = useState('');
+//   const [matchingTabs, setMatchingTabs] = useState([]);
+//   const [isSearching, setIsSearching] = useState(false);
 //   const [canvasSize, setCanvasSize] = useState({
 //     width: 5000,
 //     height: 3000,
@@ -211,6 +217,22 @@
 //     }
 //   }, []);
 
+//   const handleSearch = useCallback((query) => {
+//     setSearchQuery(query);
+//     if (!query.trim()) {
+//       setMatchingTabs([]);
+//       setIsSearching(false);
+//       return;
+//     }
+
+//     setIsSearching(true);
+//     const matches = tabs.filter(tab => 
+//       tab.title?.toLowerCase().includes(query.toLowerCase()) ||
+//       tab.url?.toLowerCase().includes(query.toLowerCase())
+//     );
+//     setMatchingTabs(matches);
+//   }, [tabs]);
+
 //   const handlePanZoomChange = useCallback((e) => {
 //     setViewportBounds({
 //       x: -e.x,
@@ -227,11 +249,11 @@
 //     }
     
 //     // Grid layout settings
-//     const COLS = 5; // Number of columns
-//     const SPACING_X = 300; // Horizontal spacing between tabs
-//     const SPACING_Y = 150; // Vertical spacing between tabs
-//     const START_X = canvasSize.width * 0.2; // Start at 20% of canvas width
-//     const START_Y = canvasSize.height * 0.2; // Start at 20% of canvas height
+//     const COLS = 5;
+//     const SPACING_X = 300;
+//     const SPACING_Y = 150;
+//     const START_X = canvasSize.width * 0.2;
+//     const START_Y = canvasSize.height * 0.2;
     
 //     const row = Math.floor(index / COLS);
 //     const col = index % COLS;
@@ -267,19 +289,6 @@
 //       );
 //     }
 //   }, [viewportBounds.scale]);
-
-//   const closeTab = useCallback((tabId) => {
-//     if (typeof chrome !== 'undefined' && chrome.tabs) {
-//       chrome.tabs.remove(tabId);
-//       // Remove position from localStorage
-//       setPositions(prev => {
-//         const newPositions = { ...prev };
-//         delete newPositions[tabId];
-//         savePositionsToStorage(newPositions);
-//         return newPositions;
-//       });
-//     }
-//   }, []);
 
 //   const connections = useMemo(() => {
 //     const result = [];
@@ -317,6 +326,72 @@
 
 //   return (
 //     <div className="w-full h-screen overflow-hidden bg-gray-900">
+//       {/* Controls Toolbar */}
+//       <div className="fixed top-0 left-0 right-0 p-4 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-50">
+//         <div className="max-w-2xl mx-auto flex gap-4 items-center">
+//           {/* Search Bar */}
+//           <div className="flex-1 relative">
+//             <Input
+//               type="text"
+//               placeholder="Search tabs..."
+//               value={searchQuery}
+//               onChange={(e) => handleSearch(e.target.value)}
+//               className="w-full bg-gray-800 text-gray-200 pl-10 pr-10 border-gray-700
+//                         focus:ring-blue-500 focus:border-blue-500"
+//             />
+//             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+//             {searchQuery && (
+//               <button
+//                 onClick={() => handleSearch('')}
+//                 className="absolute right-3 top-1/2 transform -translate-y-1/2
+//                           hover:text-gray-300 text-gray-400"
+//               >
+//                 <X className="w-4 h-4" />
+//               </button>
+//             )}
+//           </div>
+//         </div>
+
+//         {/* Search Results */}
+//         {isSearching && (
+//           <div className="absolute top-full left-0 right-0 mt-2 mx-4">
+//             <div className="max-w-2xl mx-auto bg-gray-800 rounded-md border border-gray-700 shadow-lg max-h-96 overflow-y-auto">
+//               {matchingTabs.length > 0 ? (
+//                 matchingTabs.map(tab => (
+//                   <button
+//                     key={tab.id}
+//                     onClick={() => {
+//                       focusTab(tab.id, tab.windowId);
+//                       handleSearch('');
+//                     }}
+//                     className="w-full px-4 py-2 flex items-center gap-2 hover:bg-gray-700
+//                               border-b border-gray-700 last:border-0"
+//                   >
+//                     {tab.favicon ? (
+//                       <img src={tab.favicon} alt="" className="w-4 h-4" />
+//                     ) : (
+//                       <Globe className="w-4 h-4 text-gray-400" />
+//                     )}
+//                     <div className="flex-1 text-left">
+//                       <div className="text-sm text-gray-200 truncate">
+//                         {tab.title}
+//                       </div>
+//                       <div className="text-xs text-gray-400 truncate">
+//                         {tab.url}
+//                       </div>
+//                     </div>
+//                   </button>
+//                 ))
+//               ) : (
+//                 <div className="px-4 py-3 text-gray-400 text-center">
+//                   No matching tabs found
+//                 </div>
+//               )}
+//             </div>
+//           </div>
+//         )}
+//       </div>
+
 //       <PanZoom 
 //         ref={panzoomRef}
 //         className="w-full h-full"
@@ -377,6 +452,11 @@
 
 //           {tabs.map((tab, index) => {
 //             const position = getTabPosition(tab, index);
+//             const isMatching = searchQuery && (
+//               tab.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//               tab.url?.toLowerCase().includes(searchQuery.toLowerCase())
+//             );
+            
 //             return (
 //               <TabNode
 //                 key={tab.id}
@@ -387,7 +467,7 @@
 //                 onDragEnd={(newPosition) => handleDragEnd(tab.id, newPosition)}
 //                 hasChildren={tabs.some(t => t.parentId === tab.id)}
 //                 isChild={tab.parentId !== undefined}
-//                 onClose={closeTab}
+//                 isHighlighted={isMatching}
 //               />
 //             );
 //           })}
@@ -408,15 +488,14 @@
 //   );
 // }
 
-
-
 // components/canvas/TabCanvas.jsx
 "use client";
 
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { PanZoom } from 'react-easy-panzoom';
-import { Card } from "@/components/ui/card";
-import { Globe, LayoutGrid, Image } from "lucide-react";
+import { Card } from '../ui/card';
+import { Input } from "@/components/ui/input";
+import { Globe, Search, X } from "lucide-react";
 import { useTabData } from '@/hooks/useTabData';
 import TabNode from './TabNode';
 
@@ -580,12 +659,13 @@ const Minimap = ({ tabs, canvasSize, viewportBounds, onViewportChange, scale }) 
     </Card>
   );
 };
-
 export default function TabCanvas() {
   const { tabs, loading, error, focusTab } = useTabData();
   const [positions, setPositions] = useState(() => loadPositionsFromStorage());
   const [isDragging, setIsDragging] = useState(false);
-  const [viewMode, setViewMode] = useState('card'); // 'card' or 'preview'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [matchingTabs, setMatchingTabs] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [canvasSize, setCanvasSize] = useState({
     width: 5000,
     height: 3000,
@@ -623,6 +703,22 @@ export default function TabCanvas() {
     }
   }, []);
 
+  const handleSearch = useCallback((query) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setMatchingTabs([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    const matches = tabs.filter(tab => 
+      tab.title?.toLowerCase().includes(query.toLowerCase()) ||
+      tab.url?.toLowerCase().includes(query.toLowerCase())
+    );
+    setMatchingTabs(matches);
+  }, [tabs]);
+
   const handlePanZoomChange = useCallback((e) => {
     setViewportBounds({
       x: -e.x,
@@ -639,9 +735,9 @@ export default function TabCanvas() {
     }
     
     // Grid layout settings
-    const COLS = viewMode === 'preview' ? 4 : 5;
-    const SPACING_X = viewMode === 'preview' ? 350 : 300;
-    const SPACING_Y = viewMode === 'preview' ? 220 : 150;
+    const COLS = 5;
+    const SPACING_X = 300;
+    const SPACING_Y = 150;
     const START_X = canvasSize.width * 0.2;
     const START_Y = canvasSize.height * 0.2;
     
@@ -652,7 +748,7 @@ export default function TabCanvas() {
       x: START_X + (col * SPACING_X),
       y: START_Y + (row * SPACING_Y)
     };
-  }, [positions, canvasSize, viewMode]);
+  }, [positions, canvasSize]);
 
   const handleDragEnd = useCallback((tabId, finalPosition) => {
     setPositions(prev => {
@@ -692,18 +788,18 @@ export default function TabCanvas() {
             id: `${parentTab.id}-${tab.id}`,
             start: {
               x: startPos.x,
-              y: startPos.y + (viewMode === 'preview' ? 100 : 40)
+              y: startPos.y + 40
             },
             end: {
               x: endPos.x,
-              y: endPos.y - (viewMode === 'preview' ? 100 : 40)
+              y: endPos.y - 40
             }
           });
         }
       }
     });
     return result;
-  }, [tabs, getTabPosition, viewMode]);
+  }, [tabs, getTabPosition]);
 
   if (loading) {
     return (
@@ -716,18 +812,81 @@ export default function TabCanvas() {
 
   return (
     <div className="w-full h-screen overflow-hidden bg-gray-900">
-      <div className="fixed top-4 left-4 z-50 flex gap-2">
-        <button
-          className="bg-gray-800 text-gray-200 p-2 rounded-md hover:bg-gray-700 
-                     transition-colors duration-200"
-          onClick={() => setViewMode(prev => prev === 'card' ? 'preview' : 'card')}
-        >
-          {viewMode === 'card' ? 
-            <Image className="w-4 h-4" /> : 
-            <LayoutGrid className="w-4 h-4" />
-          }
-        </button>
-      </div>
+      {/* Search Card */}
+      <Card className="fixed top-6 left-6 z-50 bg-gray-800/90 backdrop-blur-sm border-gray-700 w-80 p-4">
+        <div className="space-y-4">
+          {/* App Title and Tagline */}
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold text-gray-100">
+              TabMap
+            </h1>
+            <p className="text-sm text-gray-400">
+              Visualize and manage your browser tabs effortlessly
+            </p>
+          </div>
+
+          {/* Search Bar */}
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Search tabs..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full bg-gray-900/50 text-gray-200 pl-10 pr-10 
+                        border-gray-700 focus:ring-blue-500 focus:border-blue-500
+                        placeholder-gray-500"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+            {searchQuery && (
+              <button
+                onClick={() => handleSearch('')}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2
+                          hover:text-gray-300 text-gray-500"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Search Results */}
+          {isSearching && (
+            <div className="bg-gray-900/50 rounded-md border border-gray-700
+                          max-h-60 overflow-y-auto mt-2">
+              {matchingTabs.length > 0 ? (
+                matchingTabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      focusTab(tab.id, tab.windowId);
+                      handleSearch('');
+                    }}
+                    className="w-full px-3 py-2 flex items-center gap-2 hover:bg-gray-800/50
+                              border-b border-gray-700/50 last:border-0"
+                  >
+                    {tab.favicon ? (
+                      <img src={tab.favicon} alt="" className="w-4 h-4" />
+                    ) : (
+                      <Globe className="w-4 h-4 text-gray-400" />
+                    )}
+                    <div className="flex-1 text-left">
+                      <div className="text-sm text-gray-200 truncate">
+                        {tab.title}
+                      </div>
+                      <div className="text-xs text-gray-500 truncate">
+                        {tab.url}
+                      </div>
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <div className="px-3 py-2 text-gray-500 text-center text-sm">
+                  No matching tabs found
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </Card>
 
       <PanZoom 
         ref={panzoomRef}
@@ -789,17 +948,22 @@ export default function TabCanvas() {
 
           {tabs.map((tab, index) => {
             const position = getTabPosition(tab, index);
+            const isMatching = searchQuery && (
+              tab.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              tab.url?.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            
             return (
               <TabNode
                 key={tab.id}
                 data={tab}
-                viewMode={viewMode}
                 initialPosition={position}
                 onClick={() => !isDragging && focusTab(tab.id, tab.windowId)}
                 onDragStart={handleDragStart}
                 onDragEnd={(newPosition) => handleDragEnd(tab.id, newPosition)}
                 hasChildren={tabs.some(t => t.parentId === tab.id)}
                 isChild={tab.parentId !== undefined}
+                isHighlighted={isMatching}
               />
             );
           })}
