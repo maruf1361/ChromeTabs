@@ -1,5 +1,4 @@
-
-// content-script.js
+// extension/content-script.js
 console.log('Content script loaded');
 
 let reconnectAttempts = 0;
