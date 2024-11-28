@@ -1,5 +1,5 @@
 (function() {
-    if (window.location.href.includes('localhost:3000')) return;
+    if (window.location.href.includes('tabmap.netlify.app')) return;
   
     let currentTabs = [];
     let isOpen = false;
@@ -328,7 +328,7 @@
         chrome.runtime.sendMessage({ action: 'getTabs' }, response => {
           if (response?.type === 'tabsUpdate') {
             const tabs = response.data;
-            const mapTab = tabs.find(tab => tab.url.includes('localhost:3000'));
+            const mapTab = tabs.find(tab => tab.url.includes('tabmap.netlify.app'));
             
             if (mapTab) {
               chrome.runtime.sendMessage({
