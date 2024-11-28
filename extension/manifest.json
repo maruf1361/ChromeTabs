@@ -19,7 +19,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://localhost:3000/*"],
+      "matches": ["https://tabmap.netlify.app/*"],
       "js": ["content-script.js"]
     },
     {
@@ -27,7 +27,7 @@
         "<all_urls>"
       ],
       "exclude_matches": [
-        "http://localhost:3000/*"
+        "https://tabmap.netlify.app/*"
       ],
       "js": ["floatingSearch.js"],
       "run_at": "document_end"
