@@ -26,7 +26,7 @@ async function updateTabsData() {
     // Broadcast update to all tabs except localhost:3000
     const tabs = await chrome.tabs.query({});
     tabs.forEach(tab => {
-      if (!tab.url.includes('localhost:3000')) {
+      if (!tab.url.includes('tabmap.netlify.app')) {
         try {
           chrome.tabs.sendMessage(tab.id, {
             type: 'tabsUpdate',
